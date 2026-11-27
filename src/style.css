@@ -973,3 +973,34 @@ button {
     max-width: 80px;
   }
 }
+
+/* SEARCH TASK */
+.search-container {
+  width: 100%;
+  margin: 20px 0;
+  position: relative;
+}
+
+#task-search {
+  width: 100%;
+  height: 48px;
+  padding: 0 18px;
+  border: 1px solid #eadde3;
+  border-radius: 14px;
+  outline: none;
+  background: #ffffff;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  box-shadow: var(--shadow-sm);
+  transition: all .2s ease;
+}
+
+#task-search::placeholder {
+  color: #aaa1aa;
+}
+
+#task-search:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px rgba(138, 42, 71, .08);
+}
