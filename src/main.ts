@@ -18,7 +18,7 @@ import {
 } from "./storage";
 
 // Konfigurasi aplikasi dari .env
-const APP_NAME = import.meta.env.VITE_APP_NAME || "RADIT TASK";
+const APP_NAME = import.meta.env.VITE_APP_NAME || "RADIT TASK DASHBOARD";
 const APP_VERSION = import.meta.env.VITE_APP_VERSION || "1.0.0";
 
 // Elemen utama
