@@ -1,3 +1,4 @@
+
 import "./style.css";
 
 import type { TaskFormData, Priority } from "./types";
@@ -32,6 +33,7 @@ setTasks(loadTasks());
 
 let currentFilter: "Semua" | "Belum Selesai" | "Selesai" = "Semua";
 let editingTaskId: string | null = null;
+let searchQuery = "";
 
 // Format tanggal
 function formatDate(date: string): string {
@@ -122,21 +124,38 @@ function renderStats(): string {
 // Menampilkan daftar tugas
 function renderTasks(): string {
   const tasks = getTasks();
+  const query = searchQuery.trim().toLowerCase();
 
   const filteredTasks = tasks.filter((task) => {
-    if (currentFilter === "Semua") return true;
-    return task.status === currentFilter;
+    const matchesFilter =
+      currentFilter === "Semua" || task.status === currentFilter;
+
+    const matchesSearch =
+      task.title.toLowerCase().includes(query) ||
+      task.subject.toLowerCase().includes(query);
+
+    return matchesFilter && matchesSearch;
   });
 
   if (filteredTasks.length === 0) {
     return `
       <div class="empty-state">
         <div class="empty-icon">▤</div>
-        <h3>Belum ada tugas</h3>
-        <p>Tambahkan tugas kuliah pertamamu untuk mulai mengelola aktivitas akademik.</p>
-        <button class="btn-primary" id="empty-add-btn">
-          + Tambah Tugas
-        </button>
+        <h3>${query ? "Tugas tidak ditemukan" : "Belum ada tugas"}</h3>
+        <p>
+          ${
+            query
+              ? "Coba gunakan kata kunci pencarian yang berbeda."
+              : "Tambahkan tugas kuliah pertamamu untuk mulai mengelola aktivitas akademik."
+          }
+        </p>
+        ${
+          query
+            ? ""
+            : `<button class="btn-primary" id="empty-add-btn">
+                + Tambah Tugas
+              </button>`
+        }
       </div>
     `;
   }
@@ -361,6 +380,15 @@ function renderApp(): void {
             ${renderFilters()}
           </div>
 
+          <div class="search-container">
+            <input
+              type="text"
+              id="task-search"
+              placeholder="Cari nama tugas atau mata kuliah..."
+              value="${escapeHTML(searchQuery)}"
+            />
+          </div>
+
           ${renderTasks()}
         </section>
 
@@ -397,6 +425,27 @@ function attachEvents(): void {
     if (event.target === event.currentTarget) closeModal();
   });
 
+  // Event pencarian tugas
+  document.getElementById("task-search")?.addEventListener("input", (event) => {
+    const input = event.currentTarget as HTMLInputElement;
+
+    searchQuery = input.value;
+
+    const cursorPosition = input.selectionStart ?? searchQuery.length;
+
+    renderApp();
+
+    const newSearchInput = document.getElementById(
+      "task-search"
+    ) as HTMLInputElement | null;
+
+    if (newSearchInput) {
+      newSearchInput.focus();
+      newSearchInput.setSelectionRange(cursorPosition, cursorPosition);
+    }
+  });
+
+  // Event filter tugas
   document.querySelectorAll<HTMLButtonElement>("[data-filter]").forEach((button) => {
     button.addEventListener("click", () => {
       currentFilter = button.dataset.filter as typeof currentFilter;
@@ -404,6 +453,7 @@ function attachEvents(): void {
     });
   });
 
+  // Event aksi tugas
   document.querySelectorAll<HTMLButtonElement>("[data-action]").forEach((button) => {
     button.addEventListener("click", () => {
       const id = button.dataset.id;
@@ -434,6 +484,7 @@ function attachEvents(): void {
     });
   });
 
+  // Event form tambah dan edit tugas
   document.getElementById("task-form")?.addEventListener("submit", (event) => {
     event.preventDefault();
 
